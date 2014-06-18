@@ -42,4 +42,21 @@ describe "Micropost pages" do
       end
     end
   end
+
+  describe "micropost pagination" do
+    before do
+      50.times do
+        FactoryGirl.create(:micropost, user: user)
+      end
+    end
+    describe "as correct user" do
+      before { visit root_path }
+
+      describe "should exist pagination next link" do
+        before { click_link "Next →" }
+        it { should have_content('Micropost Feed') }
+      end
+    end
+  end
+
 end

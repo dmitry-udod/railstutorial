@@ -181,4 +181,35 @@ describe "User pages" do
       it { should have_content(user.microposts.count) }
     end
   end
+
+  describe "user can delete posts" do
+    let(:user1) { FactoryGirl.create(:user) }
+    let(:user2) { FactoryGirl.create(:user) }
+    let!(:m1) { FactoryGirl.create(:micropost, user: user1, content: "Foo") }
+    let!(:m2) { FactoryGirl.create(:micropost, user: user1, content: "Foo") }
+    let!(:m3) { FactoryGirl.create(:micropost, user: user2, content: "Foo") }
+    let!(:m4) { FactoryGirl.create(:micropost, user: user2, content: "Bar") }
+
+    describe "should be able to delete own posts" do
+      before do
+        sign_in user1
+        visit user_path(user1)
+      end
+      it { should have_content(user1.name) }
+      it { should have_title(user1.name) }
+      it { should have_content(m1.content) }
+      it { should have_content(m2.content) }
+      it { should have_content(user1.microposts.count) }
+      it { should have_link('delete', href: micropost_path(m1)) }
+
+      describe "should not be able delete other user posts" do
+        before { visit user_path(user2) }
+        it { should have_content(user2.name) }
+        it { should have_title(user2.name) }
+        it { should have_content(m3.content) }
+        it { should have_content(m4.content) }
+        it { should_not have_link('delete', href: micropost_path(m3)) }
+      end
+    end
+  end
 end
